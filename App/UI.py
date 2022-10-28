@@ -1,8 +1,8 @@
 import os
 
-from App.Config import *
+from App.Config import image_formats
 
-from typing import Union
+from typing import Union, Type
 
 from dataclasses import dataclass
 from PyQt5.QtCore import Qt, QSize
@@ -16,7 +16,7 @@ class Action:
     name: str
     text: str
     shortcut: str
-    location: Union[QToolBar, QMenuBar]
+    location: Type[QToolBar]
 
 
 actions_list = (
@@ -31,14 +31,14 @@ class ImageArea(QLabel):
         super().__init__(main_window)
 
         self.main_window = main_window
-        self.image = QImage()
 
-        self.zoom_value = 1
+        self.zoom_value = 1.0
 
-        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        # Нужно ли?
+        # self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        
         self.setScaledContents(True)
 
-        self.setPixmap(QPixmap().fromImage(self.image))
         self.setAlignment(Qt.AlignCenter)
 
     def _set_image(self, path: str) -> None:
@@ -52,12 +52,12 @@ class ImageArea(QLabel):
         self.zoom_value = round(self.zoom_value * ratio, 2)
 
         size = self.image.size()
-        width, height = size.width() * self.zoom_value, size.height() * self.zoom_value
+        width, height = int(size.width() * self.zoom_value), int(size.height() * self.zoom_value)
         self.resize(QSize(width, height))
 
         return self.zoom_value
 
-    def open_image_file(self):
+    def open_image_file(self) -> None:
         image_path = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '', f'Изображение ({"; ".join(image_formats)})')[0]
         
         if image_path:

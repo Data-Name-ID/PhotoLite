@@ -30,7 +30,10 @@ def except_hook(cls, exception, traceback):
 
 def main():
     app = QApplication(sys.argv)
+
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    app.setStyle('Fusion')
+    
     window = PhotoLite()
 
     sys.excepthook = except_hook
