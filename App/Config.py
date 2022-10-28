@@ -1,0 +1,1 @@
+image_formats = ('*.jpeg', '*.jpg', '*.png', '*.bmp')
