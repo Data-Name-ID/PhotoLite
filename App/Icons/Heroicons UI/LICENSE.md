@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2018 Steve Schoger
+Copyright (c) 2018 [Steve Schoger](https://github.com/sschoger/heroicons-ui)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

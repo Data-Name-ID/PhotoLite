@@ -6,15 +6,19 @@ from types import TracebackType
 from typing import Optional, Type
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QAction
 
 
-class PhotoLite(QMainWindow, PhotoLite_UI):
+class PhotoLite(QMainWindow, PhotoLite_UI):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.init_ui(self)
 
-        self.open_file_action.triggered.connect(self.image_area.open_image_file)
+        self.open_file_action.triggered.connect(self.open_image_file)
+        self.close_file_action.triggered.connect(self.close_image_file)
+
+        self.save_file_action.triggered.connect(self.image_area.save_image)
+        self.save_as_file_action.triggered.connect(lambda: self.image_area.save_image(True))
 
         self.step_forward_action.triggered.connect(lambda: self.image_area.to_history_step(1))
         self.step_back_action.triggered.connect(lambda: self.image_area.to_history_step(-1))
@@ -30,6 +34,18 @@ class PhotoLite(QMainWindow, PhotoLite_UI):
         self.about_action.triggered.connect(self.about_message)
 
         self.show()
+
+    def open_image_file(self) -> None:
+        self.image_area.open_image_file()
+
+        for action in actions_list:
+            getattr(self, action.name + '_action').setEnabled(True)
+
+    def close_image_file(self) -> None:
+        self.image_area.close_image_file()
+
+        for action in actions_list:
+            getattr(self, action.name + '_action').setEnabled(action.enabled)
 
     def zoom_image(self, ratio: float) -> None:
         zoom_value = self.image_area.resize_image(ratio)

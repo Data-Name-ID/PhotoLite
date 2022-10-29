@@ -1,41 +1,18 @@
 from .ImageArea import *
+from .Config import actions_list
 
 import os
 
-from typing import Type, Union, Tuple
-from dataclasses import dataclass
-
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QMainWindow, QScrollArea, QMenuBar,
+from PyQt5.QtWidgets import (QMainWindow, QScrollArea,
                              QToolBar, QAction)
-
-
-@dataclass()
-class Action:
-    name: str
-    text: str
-    shortcut: str
-    location: Union[Type[QToolBar], Type[QMenuBar]]
-    separator: bool = False
-
-
-actions_list: Tuple[Action, ...] = (
-    Action('open_file', 'Открыть изображение', 'Ctrl+O', QToolBar, True),
-    Action('step_forward', 'Шаг вперёд', 'Ctrl+Y', QToolBar),
-    Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar, True),
-    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar),
-    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar, True),
-    Action('zoom_in', 'Приблизить', 'Ctrl+=', QToolBar),
-    Action('zoom_out', 'Отдалить', 'Ctrl+-', QToolBar),
-    Action('black_white', 'Чёрно-белое', '', QMenuBar),
-    Action('about', 'О программе', 'Ctrl+I', QMenuBar)
-)
 
 
 class PhotoLite_UI(object):
     def init_ui(self, main_window: QMainWindow) -> None:
         main_window.setWindowTitle(program_name)
+        main_window.setWindowIcon(QIcon('App/Icons/PhotoLite.svg'))
         main_window.setMinimumSize(1000, 800)
 
         main_window.showMaximized()
@@ -62,6 +39,10 @@ class PhotoLite_UI(object):
 
     def _init_actions(self, main_window: QMainWindow) -> None:
         self.open_file_action: QAction
+        self.close_file_action: QAction
+
+        self.save_file_action: QAction
+        self.save_as_file_action: QAction
 
         self.step_forward_action: QAction
         self.step_back_action: QAction
@@ -77,7 +58,7 @@ class PhotoLite_UI(object):
         self.about_action: QAction
 
         for action in actions_list:
-            icon_path = fr'App\Icons\{action.name}.svg'
+            icon_path = f'App/Icons/Heroicons UI/{action.name}.svg'
 
             if os.path.isfile(icon_path):  
                 q_action = QAction(QIcon(icon_path), action.text, main_window)
@@ -85,6 +66,7 @@ class PhotoLite_UI(object):
                 q_action = QAction(action.text, main_window)
 
             q_action.setShortcut(action.shortcut)
+            q_action.setEnabled(action.enabled)
 
             if action.location is QToolBar:
                 self.toolbar.addAction(q_action)
@@ -94,14 +76,23 @@ class PhotoLite_UI(object):
 
             setattr(self, action.name + '_action', q_action)
 
-
     def _init_menubar(self, main_window: QMainWindow) -> None:
         self.menubar = main_window.menuBar()
 
         self.file_menu = self.menubar.addMenu('Файл')
         self.file_menu.addAction(self.open_file_action)
+        self.file_menu.addAction(self.close_file_action)
+        
+        self.file_menu.addSection('Сохранение')
+        self.file_menu.addAction(self.save_file_action)
+        self.file_menu.addAction(self.save_as_file_action)
 
         self.edit_menu = self.menubar.addMenu('Редактирование')
+        
+        self.edit_menu.addSection('Действия')
+        self.edit_menu.addAction(self.step_forward_action)
+        self.edit_menu.addAction(self.step_back_action)
+
         self.edit_menu.addSection('Трансформирование')
         self.edit_menu.addAction(self.rotate_right_action)
         self.edit_menu.addAction(self.rotate_left_action)
