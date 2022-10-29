@@ -1,4 +1,4 @@
-from App.Config import *
+from .Config import *
 
 from typing import Any, Callable, List, Tuple
 

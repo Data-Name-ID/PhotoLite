@@ -1,2 +1,2 @@
-from App.ImageEditing.Tools import *
-from App.ImageEditing.Filters import *
+from .Tools import *
+from .Filters import *

@@ -1,5 +1,4 @@
-from App.Config import *
-from App.ImageArea import ImageArea
+from .ImageArea import *
 
 import os
 

@@ -1,6 +1,4 @@
-from App.Config import *
-from App.UI import PhotoLite_UI
-import App.ImageEditing.Tools as Tools
+from App import *
 
 import sys
 
