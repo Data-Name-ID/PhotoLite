@@ -1,6 +1,6 @@
 from App.Config import *
 
-from typing import List
+from typing import Any, Callable, List, Tuple
 
 from PIL import Image, UnidentifiedImageError
 from PIL.ImageQt import ImageQt
@@ -15,7 +15,7 @@ class ImageArea(QLabel):
         super().__init__()
 
         self.zoom_value = 1.0
-        self.history: List[Image] = []
+        self.history: List[Image.open] = []
         
         self.setScaledContents(True)
         self.setAlignment(Qt.AlignCenter)
@@ -43,7 +43,7 @@ class ImageArea(QLabel):
         except UnidentifiedImageError:
             QMessageBox.warning(self, 'Ошибка', 'Указанный формат изображения не поддерживается!')
 
-    def apply_filter(self, filter, *args) -> None:
+    def apply_filter(self, filter: Callable[..., Image.open], *args: Any) -> None:
         new_image = filter(self.current_image, *args)
         self._update_image(new_image)
 

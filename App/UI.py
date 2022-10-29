@@ -59,6 +59,13 @@ class PhotoLite_UI(object):
         main_window.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
     def _init_actions(self, main_window: QMainWindow) -> None:
+        self.open_file_action: QAction
+        self.zoom_in_action: QAction
+        self.zoom_out_action: QAction
+        self.rotate_right_action: QAction
+        self.rotate_left_action: QAction
+        self.about_action: QAction
+
         for action in actions_list:
             icon_path = fr'App\Icons\{action.name}.svg'
 
@@ -76,6 +83,7 @@ class PhotoLite_UI(object):
                     self.toolbar.addSeparator()
 
             setattr(self, action.name + '_action', q_action)
+
 
     def _init_menubar(self, main_window: QMainWindow) -> None:
         self.menubar = main_window.menuBar()

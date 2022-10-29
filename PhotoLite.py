@@ -45,7 +45,7 @@ def main() -> None:
     application = QApplication(sys.argv)
 
     application.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    application.setStyle('Fusion')
+    application.setStyle('Fusion')  # type: ignore
     
     window = PhotoLite()
 
