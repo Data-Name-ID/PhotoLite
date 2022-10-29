@@ -22,10 +22,13 @@ class Action:
 
 actions_list: Tuple[Action, ...] = (
     Action('open_file', 'Открыть изображение', 'Ctrl+O', QToolBar, True),
+    Action('step_forward', 'Шаг вперёд', 'Ctrl+Y', QToolBar),
+    Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar, True),
+    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar),
+    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar, True),
     Action('zoom_in', 'Приблизить', 'Ctrl+=', QToolBar),
     Action('zoom_out', 'Отдалить', 'Ctrl+-', QToolBar),
-    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar),
-    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar),
+    Action('black_white', 'Чёрно-белое', '', QMenuBar),
     Action('about', 'О программе', 'Ctrl+I', QMenuBar)
 )
 
@@ -59,10 +62,18 @@ class PhotoLite_UI(object):
 
     def _init_actions(self, main_window: QMainWindow) -> None:
         self.open_file_action: QAction
-        self.zoom_in_action: QAction
-        self.zoom_out_action: QAction
+
+        self.step_forward_action: QAction
+        self.step_back_action: QAction
+
         self.rotate_right_action: QAction
         self.rotate_left_action: QAction
+
+        self.zoom_in_action: QAction
+        self.zoom_out_action: QAction
+
+        self.black_white_action: QAction
+
         self.about_action: QAction
 
         for action in actions_list:
@@ -94,6 +105,10 @@ class PhotoLite_UI(object):
         self.edit_menu.addSection('Трансформирование')
         self.edit_menu.addAction(self.rotate_right_action)
         self.edit_menu.addAction(self.rotate_left_action)
+
+        self.image_menu = self.menubar.addMenu('Изображение')
+        self.image_menu.addSection('Фильтры')
+        self.image_menu.addAction(self.black_white_action)
 
         self.help_menu = self.menubar.addMenu('Справка')
         self.help_menu.addAction(self.about_action)

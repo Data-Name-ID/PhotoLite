@@ -16,11 +16,16 @@ class PhotoLite(QMainWindow, PhotoLite_UI):
 
         self.open_file_action.triggered.connect(self.image_area.open_image_file)
 
-        self.rotate_left_action.triggered.connect(lambda: self.image_area.apply_filter(Tools.rotate_tool, 90))
-        self.rotate_right_action.triggered.connect(lambda: self.image_area.apply_filter(Tools.rotate_tool, -90))
+        self.step_forward_action.triggered.connect(lambda: self.image_area.to_history_step(1))
+        self.step_back_action.triggered.connect(lambda: self.image_area.to_history_step(-1))
+
+        self.rotate_left_action.triggered.connect(lambda: self.image_area.apply_filter(rotate_tool, 90))
+        self.rotate_right_action.triggered.connect(lambda: self.image_area.apply_filter(rotate_tool, -90))
         
         self.zoom_in_action.triggered.connect(lambda: self.zoom_image(1.25))
         self.zoom_out_action.triggered.connect(lambda: self.zoom_image(0.8))
+
+        self.black_white_action.triggered.connect(lambda: self.image_area.apply_filter(black_white_filter))
 
         self.about_action.triggered.connect(self.about_message)
 
