@@ -1,11 +1,12 @@
-import sys
-
 from App.Config import *
+from App.UI import PhotoLite_UI
+import App.ImageEditing.Tools as Tools
+
+import sys
 
 from types import TracebackType
 from typing import Optional, Type
 
-from App.UI import PhotoLite_UI
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
@@ -16,6 +17,9 @@ class PhotoLite(QMainWindow, PhotoLite_UI):
         self.init_ui(self)
 
         self.open_file_action.triggered.connect(self.image_area.open_image_file)
+
+        self.rotate_left_action.triggered.connect(lambda: self.image_area.apply_filter(Tools.rotate_tool, 90))
+        self.rotate_right_action.triggered.connect(lambda: self.image_area.apply_filter(Tools.rotate_tool, -90))
         
         self.zoom_in_action.triggered.connect(lambda: self.zoom_image(1.25))
         self.zoom_out_action.triggered.connect(lambda: self.zoom_image(0.8))
@@ -41,7 +45,7 @@ def main() -> None:
     application = QApplication(sys.argv)
 
     application.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    # application.setStyle('Fusion')
+    application.setStyle('Fusion')
     
     window = PhotoLite()
 

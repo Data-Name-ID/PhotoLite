@@ -1,14 +1,15 @@
+from App.Config import *
+from App.ImageArea import ImageArea
+
 import os
 
-from App.Config import image_formats
-
-from typing import Type, Union
-
+from typing import Type, Union, Tuple
 from dataclasses import dataclass
+
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QImage, QPixmap, QIcon
-from PyQt5.QtWidgets import (QMainWindow, QLabel, QScrollArea, QMenuBar,
-                             QToolBar, QAction, QFileDialog)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QMainWindow, QScrollArea, QMenuBar,
+                             QToolBar, QAction)
 
 
 @dataclass()
@@ -17,54 +18,23 @@ class Action:
     text: str
     shortcut: str
     location: Union[Type[QToolBar], Type[QMenuBar]]
+    separator: bool = False
 
 
-actions_list = (
-    Action('open_file', 'Открыть изображение', 'Ctrl+O', QToolBar),
+actions_list: Tuple[Action, ...] = (
+    Action('open_file', 'Открыть изображение', 'Ctrl+O', QToolBar, True),
     Action('zoom_in', 'Приблизить', 'Ctrl+=', QToolBar),
     Action('zoom_out', 'Отдалить', 'Ctrl+-', QToolBar),
-    Action('about', 'О программе', '', QMenuBar)
+    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar),
+    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar),
+    Action('about', 'О программе', 'Ctrl+I', QMenuBar)
 )
-
-
-class ImageArea(QLabel):
-    def __init__(self, main_window: QMainWindow) -> None:
-        super().__init__(main_window)
-
-        self.main_window = main_window
-
-        self.zoom_value = 1.0
-        
-        self.setScaledContents(True)
-        self.setAlignment(Qt.AlignCenter)
-
-    def _set_image(self, path: str) -> None:
-        self.image = QImage(path)
-        self.setPixmap(QPixmap().fromImage(self.image))
-        self.resize(self.image.size())
-
-        self.zoom_value = 1
-
-    def resize_image(self, ratio: float) -> float:
-        self.zoom_value = round(self.zoom_value * ratio, 2)
-
-        size = self.image.size()
-        width, height = int(size.width() * self.zoom_value), int(size.height() * self.zoom_value)
-        self.resize(QSize(width, height))
-
-        return self.zoom_value
-
-    def open_image_file(self) -> None:
-        image_path = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '', f'Изображение ({"; ".join(image_formats)})')[0]
-        
-        if image_path:
-            self._set_image(image_path)
 
 
 class PhotoLite_UI(object):
     def init_ui(self, main_window: QMainWindow) -> None:
-        main_window.setWindowTitle('PhotoLite')
-        main_window.setMinimumSize(500, 500)
+        main_window.setWindowTitle(program_name)
+        main_window.setMinimumSize(1000, 800)
 
         main_window.showMaximized()
 
@@ -75,7 +45,7 @@ class PhotoLite_UI(object):
 
 
     def _init_main_area(self, main_window: QMainWindow) -> None:
-        self.image_area = ImageArea(main_window)
+        self.image_area = ImageArea()
         self.scroll_area = QScrollArea(main_window)
         self.scroll_area.setAlignment(Qt.AlignCenter)
 
@@ -102,6 +72,9 @@ class PhotoLite_UI(object):
             if action.location is QToolBar:
                 self.toolbar.addAction(q_action)
 
+                if action.separator:
+                    self.toolbar.addSeparator()
+
             setattr(self, action.name + '_action', q_action)
 
     def _init_menubar(self, main_window: QMainWindow) -> None:
@@ -109,6 +82,11 @@ class PhotoLite_UI(object):
 
         self.file_menu = self.menubar.addMenu('Файл')
         self.file_menu.addAction(self.open_file_action)
+
+        self.edit_menu = self.menubar.addMenu('Редактирование')
+        self.edit_menu.addSection('Трансформирование')
+        self.edit_menu.addAction(self.rotate_right_action)
+        self.edit_menu.addAction(self.rotate_left_action)
 
         self.help_menu = self.menubar.addMenu('Справка')
         self.help_menu.addAction(self.about_action)
