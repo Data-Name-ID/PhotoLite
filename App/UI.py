@@ -1,6 +1,3 @@
-from .ImageArea import *
-from .Config import actions_list
-
 import os
 
 from PyQt5.QtCore import Qt, QSize
@@ -8,8 +5,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QMainWindow, QScrollArea,
                              QToolBar, QAction)
 
+from .ImageArea import ImageArea
+from .Config import actions_list, program_name
 
-class PhotoLite_UI(object):
+
+class PhotoLiteUI(object):
     def init_ui(self, main_window: QMainWindow) -> None:
         main_window.setWindowTitle(program_name)
         main_window.setWindowIcon(QIcon('App/Icons/PhotoLite.svg'))
@@ -60,7 +60,7 @@ class PhotoLite_UI(object):
         for action in actions_list:
             icon_path = f'App/Icons/Heroicons UI/{action.name}.svg'
 
-            if os.path.isfile(icon_path):  
+            if os.path.isfile(icon_path):
                 q_action = QAction(QIcon(icon_path), action.text, main_window)
             else:
                 q_action = QAction(action.text, main_window)
@@ -82,13 +82,13 @@ class PhotoLite_UI(object):
         self.file_menu = self.menubar.addMenu('Файл')
         self.file_menu.addAction(self.open_file_action)
         self.file_menu.addAction(self.close_file_action)
-        
+
         self.file_menu.addSection('Сохранение')
         self.file_menu.addAction(self.save_file_action)
         self.file_menu.addAction(self.save_as_file_action)
 
         self.edit_menu = self.menubar.addMenu('Редактирование')
-        
+
         self.edit_menu.addSection('Действия')
         self.edit_menu.addAction(self.step_forward_action)
         self.edit_menu.addAction(self.step_back_action)
@@ -103,7 +103,3 @@ class PhotoLite_UI(object):
 
         self.help_menu = self.menubar.addMenu('Справка')
         self.help_menu.addAction(self.about_action)
-
-
-if __name__ == '__main__':
-    pass

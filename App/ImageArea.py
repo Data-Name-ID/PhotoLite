@@ -1,47 +1,58 @@
-from .Config import *
-
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Union
 
 from PIL import Image, UnidentifiedImageError
 from PIL.ImageQt import ImageQt
 
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QLabel, QFileDialog, QMessageBox, QMainWindow
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel, QFileDialog, QMessageBox
+
+from .Config import *
 
 
 class ImageArea(QLabel):
     def __init__(self) -> None:
         super().__init__()
 
-        self.current_history_step = -1
-        self.zoom_value = 1.0
-        
+        self.original_image: Image
+        self.close_image_file()
+
         self.setScaledContents(True)
         self.setAlignment(Qt.AlignCenter)
 
-    def open_image_file(self) -> None:
+    def open_image_file(self) -> Union[str, None]:
         image_path = QFileDialog.getOpenFileName(
             self, 'Открытие', '',
             f'Изображение ({"; ".join(image_formats)});; Все файлы (*.*)'
         )[0]
-        
+
         if not image_path:
             return None
 
         try:
             self._set_image(image_path)
             self.image_path = image_path
+
+            return image_path
         except UnidentifiedImageError:
             QMessageBox.warning(self, 'Ошибка', 'Указанный формат изображения не поддерживается!')
 
-    def close_image_file(self) -> None:
-        self.displayed_image = QImage()
-        self.setPixmap(QPixmap().fromImage(self.displayed_image))
+            return None
 
-    def save_image(self, save_as: bool) -> None:
+
+    def close_image_file(self) -> None:
+        self.current_history_step = -1
+        self.zoom_value = 1.0
+        self.original_image = None
+        self._set_is_saved(True)
+
+        self.clear()
+
+    def save_image(self, save_as: bool = False) -> None:
         if save_as:
-            image_path = QFileDialog.getSaveFileName(self, 'Сохранение', '', ';;'.join(image_formats))[0]
+            image_path = QFileDialog.getSaveFileName(
+                self, 'Сохранение', '', ';;'.join(image_formats)
+            )[0]
 
             if not image_path:
                 return None
@@ -49,6 +60,7 @@ class ImageArea(QLabel):
             image_path = self.image_path
 
         self.current_image.save(image_path)
+        self._set_is_saved(True)
 
     def resize_image(self, ratio: float) -> float:
         self.zoom_value = round(self.zoom_value * ratio, 2)
@@ -59,36 +71,41 @@ class ImageArea(QLabel):
 
         return self.zoom_value
 
-    def apply_filter(self, filter: Callable[..., Image.open], *args: Any) -> None:
-        new_image = filter(self.current_image, *args)
+    def apply_filter(self, image_filter: Callable[..., Image.open], *args: Any) -> None:
+        new_image = image_filter(self.current_image, *args)
         self._update_history(new_image)
         self._update_image(new_image)
 
-    def to_history_step(self, n: int) -> None:
-        """Перейти к предыдущему или последующему шагу
-
-        Аргументы:
-            n (int): int[-1] к предыдущему; int[1] к последующему
-        """
-        if (n < 0 and self.current_history_step > 0) or (n > 0 and len(self.history) > self.current_history_step + n):
-            self.current_history_step += n
+    def to_history_step(self, step: int) -> None:
+        if (step < 0 and self.current_history_step > 0) or \
+                (step > 0 and len(self.history) > self.current_history_step + step):
+            self.current_history_step += step
 
             history_image = self.history[self.current_history_step]
             self._update_image(history_image)
 
+    def is_need_save(self) -> bool:
+        return self.original_image is not None and \
+            (not self.is_saved[0] or self.current_history_step != self.is_saved[1])
+
+    def _set_is_saved(self, is_saved: bool) -> None:
+        self.is_saved = (is_saved, self.current_history_step)
+
     def _set_image(self, path: str) -> None:
         self.original_image = Image.open(path)
         self.current_image = self.original_image.copy()
-        
+
         self.zoom_value = 1.0
         self.history: List[Image.open] = []
         self.current_history_step = -1
 
         self._update_image(self.current_image)
         self._update_history(self.current_image)
+        self._set_is_saved(True)
 
     def _update_image(self, image: Image) -> None:
         self.current_image = image
+        self._set_is_saved(False)
 
         self.displayed_image = ImageQt(self.current_image)
         self.setPixmap(QPixmap().fromImage(self.displayed_image))
@@ -107,7 +124,3 @@ class ImageArea(QLabel):
             self.current_history_step += 1
 
         self.history.append(image)
-
-
-if __name__ == '__main__':
-    pass

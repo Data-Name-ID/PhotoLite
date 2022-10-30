@@ -1,21 +1,30 @@
-from App import *
-
 import sys
+import sqlite3
+
+from os import path, makedirs
 
 from types import TracebackType
 from typing import Optional, Type
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QAction
+from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+
+from App import *
 
 
-class PhotoLite(QMainWindow, PhotoLite_UI):  # type: ignore
+class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.init_ui(self)
 
-        self.open_file_action.triggered.connect(self.open_image_file)
-        self.close_file_action.triggered.connect(self.close_image_file)
+        self._connect_actions()
+        self._connect_db()
+
+        self.show()
+
+    def _connect_actions(self) -> None:
+        self.open_file_action.triggered.connect(self._open_image_file)
+        self.close_file_action.triggered.connect(self._close_image_file)
 
         self.save_file_action.triggered.connect(self.image_area.save_image)
         self.save_as_file_action.triggered.connect(lambda: self.image_area.save_image(True))
@@ -23,40 +32,75 @@ class PhotoLite(QMainWindow, PhotoLite_UI):  # type: ignore
         self.step_forward_action.triggered.connect(lambda: self.image_area.to_history_step(1))
         self.step_back_action.triggered.connect(lambda: self.image_area.to_history_step(-1))
 
-        self.rotate_left_action.triggered.connect(lambda: self.image_area.apply_filter(rotate_tool, 90))
-        self.rotate_right_action.triggered.connect(lambda: self.image_area.apply_filter(rotate_tool, -90))
-        
-        self.zoom_in_action.triggered.connect(lambda: self.zoom_image(1.25))
-        self.zoom_out_action.triggered.connect(lambda: self.zoom_image(0.8))
+        self.rotate_left_action.triggered.connect(
+            lambda: self.image_area.apply_filter(rotate_tool, 90)
+        )
+        self.rotate_right_action.triggered.connect(
+            lambda: self.image_area.apply_filter(rotate_tool, -90)
+        )
 
-        self.black_white_action.triggered.connect(lambda: self.image_area.apply_filter(black_white_filter))
+        self.zoom_in_action.triggered.connect(lambda: self._zoom_image(1.25))
+        self.zoom_out_action.triggered.connect(lambda: self._zoom_image(0.8))
 
-        self.about_action.triggered.connect(self.about_message)
+        self.black_white_action.triggered.connect(
+            lambda: self.image_area.apply_filter(black_white_filter)
+        )
 
-        self.show()
+        self.about_action.triggered.connect(self._about_message)
 
-    def open_image_file(self) -> None:
-        self.image_area.open_image_file()
+    def _connect_db(self) -> None:
+        if not path.exists('Data'):
+            makedirs('Data')
 
-        for action in actions_list:
-            getattr(self, action.name + '_action').setEnabled(True)
+        self.data_base = sqlite3.connect('Data/Main.db')
+        self.db_cur = self.data_base.cursor()
 
-    def close_image_file(self) -> None:
+        self.db_cur.execute('CREATE TABLE IF NOT EXISTS images(id INT PRIMARY KEY, path TEXT)')
+        self.data_base.commit()
+
+    def _open_image_file(self) -> None:
+        image_path = self.image_area.open_image_file()
+        if image_path:
+            self.db_cur.execute(f"INSERT INTO images(path) VALUES('{image_path}')")
+            self.data_base.commit()
+
+            for action in actions_list:
+                getattr(self, action.name + '_action').setEnabled(True)
+
+    def _close_image_file(self) -> None:
         self.image_area.close_image_file()
 
         for action in actions_list:
             getattr(self, action.name + '_action').setEnabled(action.enabled)
 
-    def zoom_image(self, ratio: float) -> None:
+    def _zoom_image(self, ratio: float) -> None:
         zoom_value = self.image_area.resize_image(ratio)
 
         self.zoom_in_action.setEnabled(zoom_value < 3)
         self.zoom_out_action.setEnabled(zoom_value > 0.3)
 
-    def about_message(self) -> None:
+    def _about_message(self) -> None:
         QMessageBox.about(self, f'О {program_name}', about_description)
-    
-def except_hook(cls: Type[BaseException], exception: BaseException, traceback: Optional[TracebackType]) -> None:
+
+    def closeEvent(self, event: QEvent) -> None:
+        if self.image_area.is_need_save():
+            result = QMessageBox.warning(
+                self, program_name, 'Сохранить изменения перед выходом?',
+                QMessageBox.Yes|QMessageBox.No|QMessageBox.Cancel
+            )
+
+            if result == QMessageBox.Yes:
+                self.image_area.save_image()
+            elif result == QMessageBox.Cancel:
+                event.ignore()
+            else:
+                self.data_base.close()
+        else:
+            self.data_base.close()
+
+
+def _except_hook(cls: Type[BaseException], exception: BaseException,
+                traceback: Optional[TracebackType]) -> None:
     sys.__excepthook__(cls, exception, traceback)
 
 
@@ -65,10 +109,10 @@ def main() -> None:
 
     application.setAttribute(Qt.AA_UseHighDpiPixmaps)
     application.setStyle('Fusion')  # type: ignore
-    
+
     window = PhotoLite()
 
-    sys.excepthook = except_hook
+    sys.excepthook = _except_hook
     sys.exit(application.exec_())
 
 

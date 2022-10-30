@@ -1,4 +1,4 @@
 from .Config import *
-from .UI import PhotoLite_UI
+from .UI import PhotoLiteUI
 from .ImageArea import ImageArea
 from .ImageEditing import *
