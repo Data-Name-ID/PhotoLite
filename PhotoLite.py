@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from App import *
 
 
-class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
+class PhotoLite(QMainWindow, UI):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.init_ui(self)
@@ -61,7 +61,11 @@ class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
         self.data_base.commit()
 
     def _open_image_file(self) -> None:
+        if self._save_question():
+            return None
+
         image_path = self.image_area.open_image_file()
+
         if image_path:
             self.db_cur.execute(f"INSERT INTO images(path) VALUES('{image_path}')")
             self.data_base.commit()
@@ -70,6 +74,9 @@ class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
                 getattr(self, action.name + '_action').setEnabled(True)
 
     def _close_image_file(self) -> None:
+        if self._save_question():
+            return None
+
         self.image_area.close_image_file()
 
         for action in actions_list:
@@ -82,21 +89,28 @@ class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
         self.zoom_out_action.setEnabled(zoom_value > 0.3)
 
     def _about_message(self) -> None:
-        QMessageBox.about(self, f'О {program_name}', about_description)
+        QMessageBox.about(self, f'О {PROGRAM_NAME}', ABOUT_DESCRIPTION)
 
-    def closeEvent(self, event: QEvent) -> None:
+    def _save_question(self) -> bool:
         if self.image_area.is_need_save():
             result = QMessageBox.warning(
-                self, program_name, 'Сохранить изменения перед выходом?',
+                self, PROGRAM_NAME, 'Сохранить изменения?',
                 QMessageBox.Yes|QMessageBox.No|QMessageBox.Cancel
             )
 
             if result == QMessageBox.Yes:
                 self.image_area.save_image()
-            elif result == QMessageBox.Cancel:
-                event.ignore()
-            else:
-                self.data_base.close()
+
+            if result == QMessageBox.Cancel:
+                return True
+
+        return False
+
+    def closeEvent(self, event: QEvent) -> None:
+        result = self._save_question()
+
+        if result:
+            event.ignore()
         else:
             self.data_base.close()
 
