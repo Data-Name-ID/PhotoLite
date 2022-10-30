@@ -44,6 +44,8 @@ class PhotoLiteUI(object):
         self.save_file_action: QAction
         self.save_as_file_action: QAction
 
+        self.exit_action: QAction
+
         self.step_forward_action: QAction
         self.step_back_action: QAction
 
@@ -80,12 +82,17 @@ class PhotoLiteUI(object):
         self.menubar = main_window.menuBar()
 
         self.file_menu = self.menubar.addMenu('Файл')
+
+        self.file_menu.addSection('Начало работы')
         self.file_menu.addAction(self.open_file_action)
         self.file_menu.addAction(self.close_file_action)
 
         self.file_menu.addSection('Сохранение')
         self.file_menu.addAction(self.save_file_action)
         self.file_menu.addAction(self.save_as_file_action)
+
+        self.file_menu.addSection('Выход')
+        self.file_menu.addAction(self.exit_action)
 
         self.edit_menu = self.menubar.addMenu('Редактирование')
 
@@ -101,5 +108,7 @@ class PhotoLiteUI(object):
         self.image_menu.addSection('Фильтры')
         self.image_menu.addAction(self.black_white_action)
 
-        self.help_menu = self.menubar.addMenu('Справка')
+        self.help_menu = self.menubar.addMenu('Помощь')
+
+        self.help_menu.addSection('Справка')
         self.help_menu.addAction(self.about_action)

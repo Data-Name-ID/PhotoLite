@@ -19,6 +19,7 @@ actions_list: Tuple[Action, ...] = (
     Action('close_file', 'Закрыть', 'Ctrl+W', QMenuBar),
     Action('save_file', 'Сохранить', 'Ctrl+S', QToolBar, True),
     Action('save_as_file', 'Сохранить как...', 'Ctrl+Shift+S', QMenuBar),
+    Action('exit', 'Выход', 'Ctrl+Q', QMenuBar, enabled=True),
     Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar),
     Action('step_forward', 'Шаг вперёд', 'Ctrl+Y', QToolBar, True),
     Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar),

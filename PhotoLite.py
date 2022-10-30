@@ -29,6 +29,8 @@ class PhotoLite(QMainWindow, PhotoLiteUI):  # type: ignore
         self.save_file_action.triggered.connect(self.image_area.save_image)
         self.save_as_file_action.triggered.connect(lambda: self.image_area.save_image(True))
 
+        self.exit_action.triggered.connect(self.close)
+
         self.step_forward_action.triggered.connect(lambda: self.image_area.to_history_step(1))
         self.step_back_action.triggered.connect(lambda: self.image_area.to_history_step(-1))
 
