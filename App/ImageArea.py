@@ -5,14 +5,16 @@ from PIL.ImageQt import ImageQt
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QLabel, QFileDialog, QMessageBox, QMainWindow
 
 from .Config import *
 
 
 class ImageArea(QLabel):
-    def __init__(self) -> None:
+    def __init__(self, main_window: QMainWindow) -> None:
         super().__init__()
+
+        self.main_window = main_window
 
         self.original_image: Image
         self.close_image_file()
@@ -38,7 +40,6 @@ class ImageArea(QLabel):
             QMessageBox.warning(self, 'Ошибка', 'Указанный формат изображения не поддерживается!')
 
             return None
-
 
     def close_image_file(self) -> None:
         self.current_history_step = -1
@@ -76,13 +77,15 @@ class ImageArea(QLabel):
         self._update_history(new_image)
         self._update_image(new_image)
 
-    def to_history_step(self, step: int) -> None:
-        if (step < 0 and self.current_history_step > 0) or \
-                (step > 0 and len(self.history) > self.current_history_step + step):
-            self.current_history_step += step
+        self._set_history_actions_enabled()
 
-            history_image = self.history[self.current_history_step]
-            self._update_image(history_image)
+    def to_history_step(self, step: int) -> None:
+        self.current_history_step += step
+
+        history_image = self.history[self.current_history_step]
+        self._update_image(history_image)
+
+        self._set_history_actions_enabled()
 
     def is_need_save(self) -> bool:
         return self.original_image is not None and \
@@ -116,11 +119,15 @@ class ImageArea(QLabel):
 
     def _update_history(self, image: Image) -> None:
         if len(self.history) - 1 != self.current_history_step:
-            del self.history[-self.current_history_step + 1:]
+            del self.history[self.current_history_step + 1:]
 
-        if len(self.history) == history_limit:
+        if len(self.history) == HISTORY_LIMIT:
             del self.history[0]
         else:
             self.current_history_step += 1
 
         self.history.append(image)
+
+    def _set_history_actions_enabled(self) -> None:
+        self.main_window.step_forward_action.setEnabled(len(self.history) > self.current_history_step + 1)
+        self.main_window.step_back_action.setEnabled(self.current_history_step > 0)

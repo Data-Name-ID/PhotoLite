@@ -1,11 +1,67 @@
 import os
 
+from typing import Type, Union, Tuple
+from dataclasses import dataclass
+
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QScrollArea, QMenu, QToolBar, QAction
+from PyQt5.QtWidgets import QMainWindow, QScrollArea, QMenu, QToolBar, QAction, QMenuBar
 
 from .ImageArea import ImageArea
-from .Config import menu_list, actions_list, PROGRAM_NAME
+from .Config import PROGRAM_NAME
+
+
+@dataclass()
+class Menu:
+    name: str
+    text: str
+
+
+@dataclass()
+class Action:
+    name: str
+    text: str
+    shortcut: str
+    location: Union[Type[QToolBar], Type[QMenuBar]]
+    menu_name: str
+    menu_separator: str = ''
+    separator: bool = False
+    enabled: bool = False
+    enabled_exception: bool = False
+
+
+menu_list = (
+    Menu('file', 'Файл'),
+    Menu('edit', 'Редактирование'),
+    Menu('image', 'Изображение'),
+    Menu('view', 'Просмотр'),
+    Menu('help', 'Помощь')
+)
+
+actions_list: Tuple[Action, ...] = (
+    Action('open_file', 'Открыть...', 'Ctrl+O', QToolBar, 'file', 'Начало работы', enabled=True),
+    Action('close_file', 'Закрыть', 'Ctrl+W', QMenuBar, 'file'),
+
+    Action('save_file', 'Сохранить', 'Ctrl+S', QToolBar, 'file', 'Сохранение'),
+    Action('save_as_file', 'Сохранить как...', 'Ctrl+Shift+S', QMenuBar, 'file'),
+
+    Action('exit', 'Выход', 'Ctrl+Q', QMenuBar, 'file', 'Закрытие', enabled=True),
+
+    Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar, 'edit', 'Действия', separator=True, enabled_exception=True),
+    Action('step_forward', 'Шаг вперёд', 'Ctrl+Y', QToolBar, 'edit', enabled_exception=True),
+
+    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar, 'edit', 'Трансформирование', separator=True),
+    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar, 'edit', ),
+
+    Action('zoom_in', 'Приблизить', '=', QToolBar, 'view', 'Размер', True),
+    Action('zoom_out', 'Отдалить', '-', QToolBar, 'view'),
+
+    Action('black_white', 'Чёрно-белое', '', QMenuBar, 'image', 'Фильтры'),
+    Action('inversion', 'Инверсия', '', QMenuBar, 'image'),
+
+    Action('about', 'О программе', 'Ctrl+I', QMenuBar, 'help', 'Справка', enabled=True)
+)
+
 
 
 class UI(object):
@@ -22,7 +78,7 @@ class UI(object):
         self._init_actions(main_window)
 
     def _init_main_area(self, main_window: QMainWindow) -> None:
-        self.image_area = ImageArea()
+        self.image_area = ImageArea(main_window)
         self.scroll_area = QScrollArea(main_window)
         self.scroll_area.setAlignment(Qt.AlignCenter)
 

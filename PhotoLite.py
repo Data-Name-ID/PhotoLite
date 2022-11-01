@@ -47,6 +47,9 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         self.black_white_action.triggered.connect(
             lambda: self.image_area.apply_filter(black_white_filter)
         )
+        self.inversion_action.triggered.connect(
+            lambda: self.image_area.apply_filter(inversion_filter)
+        )
 
         self.about_action.triggered.connect(self._about_message)
 
@@ -57,7 +60,7 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         self.data_base = sqlite3.connect('Data/Main.db')
         self.db_cur = self.data_base.cursor()
 
-        self.db_cur.execute('CREATE TABLE IF NOT EXISTS images(id INT PRIMARY KEY, path TEXT)')
+        self.db_cur.execute('CREATE TABLE IF NOT EXISTS images(path TEXT PRIMARY KEY)')
         self.data_base.commit()
 
     def _open_image_file(self) -> None:
@@ -67,11 +70,11 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         image_path = self.image_area.open_image_file()
 
         if image_path:
-            self.db_cur.execute(f"INSERT INTO images(path) VALUES('{image_path}')")
+            self.db_cur.execute(f"INSERT OR IGNORE INTO images(path) VALUES('{image_path}')")
             self.data_base.commit()
 
             for action in actions_list:
-                getattr(self, action.name + '_action').setEnabled(True)
+                getattr(self, action.name + '_action').setEnabled(not action.enabled_exception)
 
     def _close_image_file(self) -> None:
         if self._save_question():
