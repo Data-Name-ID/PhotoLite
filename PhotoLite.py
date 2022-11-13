@@ -7,7 +7,7 @@ from types import TracebackType
 from typing import Optional, Type
 
 from PyQt5.QtCore import Qt, QEvent
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget
 
 from App import *
 
@@ -16,6 +16,8 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.init_ui(self)
+
+        self.settings_window = SettingsWindow()
 
         self._connect_actions()
         self._connect_db()
@@ -28,6 +30,8 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
 
         self.save_file_action.triggered.connect(self.image_area.save_image)
         self.save_as_file_action.triggered.connect(lambda: self.image_area.save_image(True))
+        
+        self.settings_action.triggered.connect(self._open_settings)
 
         self.exit_action.triggered.connect(self.close)
 
@@ -94,6 +98,9 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
     def _about_message(self) -> None:
         QMessageBox.about(self, f'О {PROGRAM_NAME}', ABOUT_DESCRIPTION)
 
+    def _open_settings(self):
+        self.settings_window.show()
+
     def _save_question(self) -> bool:
         if self.image_area.is_need_save():
             result = QMessageBox.warning(
@@ -116,6 +123,12 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
             event.ignore()
         else:
             self.data_base.close()
+
+
+class SettingsWindow(QWidget, Settings_UI):
+    def __init__(self) -> QWidget:
+        super().__init__()
+        self.init_ui(self)
 
 
 def _except_hook(cls: Type[BaseException], exception: BaseException,
