@@ -17,7 +17,7 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         super().__init__()
         self.init_ui(self)
 
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindow(self)
 
         self._connect_actions()
         self._connect_db()
@@ -65,7 +65,8 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         self.db_cur = self.data_base.cursor()
 
         self.db_cur.execute('CREATE TABLE IF NOT EXISTS images(path TEXT PRIMARY KEY)')
-        self.data_base.commit()
+        self.db_cur.execute('CREATE TABLE IF NOT EXISTS settings(name TEXT PRIMARY KEY, value TEXT)')
+        self.db_cur.execute(f"INSERT OR IGNORE INTO settings(name, value) VALUES('HISTORY_LIMIT', '{DEF_HISTORY_LIMIT}')")
 
     def _open_image_file(self) -> None:
         if self._save_question():
@@ -99,6 +100,10 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         QMessageBox.about(self, f'О {PROGRAM_NAME}', ABOUT_DESCRIPTION)
 
     def _open_settings(self):
+        history = self.db_cur.execute("""SELECT value FROM settings WHERE name = 'HISTORY_LIMIT'""").fetchall()[0][0]
+        print(history)
+
+        self.settings_window.histoty_spinbox.setValue(int(history))
         self.settings_window.show()
 
     def _save_question(self) -> bool:
@@ -122,13 +127,26 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         if result:
             event.ignore()
         else:
+            self.data_base.commit()
             self.data_base.close()
 
 
 class SettingsWindow(QWidget, Settings_UI):
-    def __init__(self) -> QWidget:
+    def __init__(self, main_window: QMainWindow) -> QWidget:
         super().__init__()
         self.init_ui(self)
+
+        self.main_window = main_window
+
+        self.save_button.clicked.connect(self._save)
+        self.cancel_button.clicked.connect(self._cancel)
+
+    def _save(self) -> None:
+        self.main_window.db_cur.execute(f"""UPDATE settings SET value = '{self.histoty_spinbox.value()}' WHERE name = 'HISTORY_LIMIT'""")
+        self.close()
+
+    def _cancel(self) -> None:
+        self.close()
 
 
 def _except_hook(cls: Type[BaseException], exception: BaseException,
