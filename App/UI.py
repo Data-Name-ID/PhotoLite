@@ -45,6 +45,8 @@ actions_list: Tuple[Action, ...] = (
     Action('save_file', 'Сохранить', 'Ctrl+S', QToolBar, 'file', 'Сохранение'),
     Action('save_as_file', 'Сохранить как...', 'Ctrl+Shift+S', QMenuBar, 'file'),
 
+    Action('settings', 'Настройки', '', QMenuBar, 'file', 'Программа', enabled=True),
+
     Action('exit', 'Выход', 'Ctrl+Q', QMenuBar, 'file', 'Закрытие', enabled=True),
 
     Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar, 'edit', 'Действия', separator=True, enabled_exception=True),
