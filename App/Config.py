@@ -3,4 +3,6 @@ ABOUT_DESCRIPTION = """PhotoLite - небольшой фоторедактор, 
 
 image_formats = ('*.jpeg', '*.jpg', '*.png', '*.bmp')
 
-DEF_HISTORY_LIMIT = 15
+SETTINGS = {
+    'history_limit': 15
+}

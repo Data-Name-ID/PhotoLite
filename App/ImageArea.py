@@ -121,7 +121,7 @@ class ImageArea(QLabel):
         if len(self.history) - 1 != self.current_history_step:
             del self.history[self.current_history_step + 1:]
 
-        if len(self.history) == HISTORY_LIMIT:
+        if len(self.history) == SETTINGS['history_limit']:
             del self.history[0]
         else:
             self.current_history_step += 1

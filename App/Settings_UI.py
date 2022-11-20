@@ -8,16 +8,16 @@ class Settings_UI(object):
         window.setWindowIcon(QIcon('App/Icons/PhotoLite.svg'))
         window.setFixedSize(380, 80)
 
-        self.main_layout = QVBoxLayout(window)
-        self.history_layout = QHBoxLayout(window)
+        self.main_layout = QVBoxLayout()
+        self.history_layout = QHBoxLayout()
 
         self.histoty_label = QLabel(window)
         self.histoty_label.setText('Лимит истории')
         
-        self.histoty_spinbox = QSpinBox(window)
+        self.history_limit_value = QSpinBox(window)
 
         self.history_layout.addWidget(self.histoty_label)
-        self.history_layout.addWidget(self.histoty_spinbox)
+        self.history_layout.addWidget(self.history_limit_value)
 
         self.buttons_layout = QHBoxLayout(window)
 

@@ -15,12 +15,13 @@ from App import *
 class PhotoLite(QMainWindow, UI):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
-        self.init_ui(self)
+        self._connect_db()
 
+        self.init_ui(self)
+        
         self.settings_window = SettingsWindow(self)
 
         self._connect_actions()
-        self._connect_db()
 
         self.show()
 
@@ -66,7 +67,14 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
 
         self.db_cur.execute('CREATE TABLE IF NOT EXISTS images(path TEXT PRIMARY KEY)')
         self.db_cur.execute('CREATE TABLE IF NOT EXISTS settings(name TEXT PRIMARY KEY, value TEXT)')
-        self.db_cur.execute(f"INSERT OR IGNORE INTO settings(name, value) VALUES('HISTORY_LIMIT', '{DEF_HISTORY_LIMIT}')")
+
+        for setting in SETTINGS:
+            try:
+                self.db_cur.execute(f"SELECT * FROM settings where name = '{setting}'")
+                SETTINGS[setting] = int(self.db_cur.execute(f"SELECT value FROM settings WHERE name = '{setting}'").fetchall()[0][0])
+            except:
+                self.db_cur.execute(f"INSERT INTO settings VALUES(?, ?)", (setting, str(SETTINGS[setting])))
+                print('ok')     
 
     def _open_image_file(self) -> None:
         if self._save_question():
@@ -100,10 +108,11 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         QMessageBox.about(self, f'О {PROGRAM_NAME}', ABOUT_DESCRIPTION)
 
     def _open_settings(self):
-        history = self.db_cur.execute("""SELECT value FROM settings WHERE name = 'HISTORY_LIMIT'""").fetchall()[0][0]
-        print(history)
+        for setting in SETTINGS:
+            getattr(self.settings_window, f'{setting}_value').setValue(
+                int(self.db_cur.execute(f"SELECT value FROM settings WHERE name = '{setting}'").fetchall()[0][0])
+            )
 
-        self.settings_window.histoty_spinbox.setValue(int(history))
         self.settings_window.show()
 
     def _save_question(self) -> bool:
@@ -142,7 +151,11 @@ class SettingsWindow(QWidget, Settings_UI):
         self.cancel_button.clicked.connect(self._cancel)
 
     def _save(self) -> None:
-        self.main_window.db_cur.execute(f"""UPDATE settings SET value = '{self.histoty_spinbox.value()}' WHERE name = 'HISTORY_LIMIT'""")
+        for setting in SETTINGS:
+            self.main_window.db_cur.execute(
+                f"UPDATE settings SET value = '{getattr(self, f'{setting}_value').value()}' WHERE name = '{setting}'"
+            )
+        
         self.close()
 
     def _cancel(self) -> None:
