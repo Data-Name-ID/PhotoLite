@@ -59,7 +59,9 @@ actions_list: Tuple[Action, ...] = (
     Action('zoom_out', 'Отдалить', '-', QToolBar, 'view'),
 
     Action('black_white', 'Чёрно-белое', '', QMenuBar, 'image', 'Фильтры'),
+    Action('only_black_white', 'Абсолютное чёрно-белое', '', QMenuBar, 'image'),
     Action('inversion', 'Инверсия', '', QMenuBar, 'image'),
+    Action('makeanagliph', 'Эфект стереопары [3D]', '', QMenuBar, 'image'),
 
     Action('about', 'О программе', 'Ctrl+I', QMenuBar, 'help', 'Справка', enabled=True)
 )

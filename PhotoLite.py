@@ -52,8 +52,14 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         self.black_white_action.triggered.connect(
             lambda: self.image_area.apply_filter(black_white_filter)
         )
+        self.only_black_white_action.triggered.connect(
+            lambda: self.image_area.apply_filter(only_black_white_filter)
+        )
         self.inversion_action.triggered.connect(
             lambda: self.image_area.apply_filter(inversion_filter)
+        )
+        self.makeanagliph_action.triggered.connect(
+            lambda: self.image_area.apply_filter(makeanagliph_filter)
         )
 
         self.about_action.triggered.connect(self._about_message)
