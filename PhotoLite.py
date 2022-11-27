@@ -45,6 +45,12 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         self.rotate_right_action.triggered.connect(
             lambda: self.image_area.apply_filter(rotate_tool, -90)
         )
+        self.flip_left_right_action.triggered.connect(
+            lambda: self.image_area.apply_filter(flip_left_right_tool, -90)
+        )
+        self.flip_top_bottom_action.triggered.connect(
+            lambda: self.image_area.apply_filter(flip_top_bottom_tool, -90)
+        )
 
         self.zoom_in_action.triggered.connect(lambda: self._zoom_image(1.25))
         self.zoom_out_action.triggered.connect(lambda: self._zoom_image(0.8))
@@ -60,6 +66,21 @@ class PhotoLite(QMainWindow, UI):  # type: ignore
         )
         self.makeanagliph_action.triggered.connect(
             lambda: self.image_area.apply_filter(makeanagliph_filter)
+        )
+        self.blur_action.triggered.connect(
+            lambda: self.image_area.apply_filter(blur_filter)
+        )
+        self.sharpen_action.triggered.connect(
+            lambda: self.image_area.apply_filter(sharpen_filter)
+        )
+        self.smooth_action.triggered.connect(
+            lambda: self.image_area.apply_filter(smooth_filter)
+        )
+        self.find_edges_action.triggered.connect(
+            lambda: self.image_area.apply_filter(find_edges_filter)
+        )
+        self.emboss_action.triggered.connect(
+            lambda: self.image_area.apply_filter(emboss_filter)
         )
 
         self.about_action.triggered.connect(self._about_message)

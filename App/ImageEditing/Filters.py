@@ -1,7 +1,32 @@
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
 # Самые простые фильтры
+def sharpen_filter(image: Image.open) -> Image:
+    new_image = image.filter(ImageFilter.SHARPEN)
+    return new_image
+
+
+def smooth_filter(image: Image.open) -> Image:
+    new_image = image.filter(ImageFilter.SMOOTH)
+    return new_image
+
+
+def blur_filter(image: Image.open) -> Image:
+    new_image = image.filter(ImageFilter.BLUR)
+    return new_image
+
+
+def find_edges_filter(image: Image.open) -> Image:
+    new_image = image.filter(ImageFilter.FIND_EDGES)
+    return new_image
+
+
+def emboss_filter(image: Image.open) -> Image:
+    new_image = image.filter(ImageFilter.EMBOSS)
+    return new_image
+
+
 def black_white_filter(image: Image.open) -> Image:
     new_image = image.copy()
     pixels = new_image.load()

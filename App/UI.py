@@ -52,8 +52,10 @@ actions_list: Tuple[Action, ...] = (
     Action('step_back', 'Шаг назад', 'Ctrl+Z', QToolBar, 'edit', 'Действия', separator=True, enabled_exception=True),
     Action('step_forward', 'Шаг вперёд', 'Ctrl+Y', QToolBar, 'edit', enabled_exception=True),
 
-    Action('rotate_right', 'Повенуть на 90° по ч. с.', ']', QToolBar, 'edit', 'Трансформирование', separator=True),
-    Action('rotate_left', 'Повенуть на 90° против ч. с.', '[', QToolBar, 'edit', ),
+    Action('rotate_right', 'Поворот на 90° по ч. с.', ']', QToolBar, 'edit', 'Трансформирование', separator=True),
+    Action('rotate_left', 'Поворот на 90° против ч. с.', '[', QToolBar, 'edit'),
+    Action('flip_left_right', 'Зеркальное отражение по горизонтале', '', QMenuBar, 'edit'),
+    Action('flip_top_bottom', 'Зеркальное отражение по вертикале', '', QMenuBar, 'edit'),
 
     Action('zoom_in', 'Приблизить', '=', QToolBar, 'view', 'Размер', True),
     Action('zoom_out', 'Отдалить', '-', QToolBar, 'view'),
@@ -61,7 +63,12 @@ actions_list: Tuple[Action, ...] = (
     Action('black_white', 'Чёрно-белое', '', QMenuBar, 'image', 'Фильтры'),
     Action('only_black_white', 'Абсолютное чёрно-белое', '', QMenuBar, 'image'),
     Action('inversion', 'Инверсия', '', QMenuBar, 'image'),
-    Action('makeanagliph', 'Эфект стереопары [3D]', '', QMenuBar, 'image'),
+    Action('makeanagliph', 'Эффект стереопары [3D]', '', QMenuBar, 'image'),
+    Action('blur', 'Размытие', '', QMenuBar, 'image'),
+    Action('sharpen', 'Повысить резкость', '', QMenuBar, 'image'),
+    Action('smooth', 'Понизить резкость', '', QMenuBar, 'image'),
+    Action('find_edges', 'Оставить границы', '', QMenuBar, 'image'),
+    Action('emboss', 'Эффект плоского 3D', '', QMenuBar, 'image'),
 
     Action('about', 'О программе', 'Ctrl+I', QMenuBar, 'help', 'Справка', enabled=True)
 )
