@@ -1,3 +1,7 @@
+"""
+Описывает класс области просмотра изображения
+"""
+
 from typing import Any, Callable, List, Union
 
 from PIL import Image, UnidentifiedImageError
@@ -11,6 +15,10 @@ from .Config import *
 
 
 class ImageArea(QLabel):
+    """
+    Класс области просмотра изображения
+    """
+
     def __init__(self, main_window: QMainWindow) -> None:
         super().__init__()
 
@@ -23,9 +31,14 @@ class ImageArea(QLabel):
         self.setAlignment(Qt.AlignCenter)
 
     def open_image_file(self) -> Union[str, None]:
+        """
+        Открытие файла изображения
+        """
         image_path = QFileDialog.getOpenFileName(
-            self, 'Открытие', '',
-            f'Изображение ({"; ".join(image_formats)});; Все файлы (*.*)'
+            self,
+            'Открытие',
+            '',
+            f'Изображение ({"; ".join(image_formats)});; Все файлы (*.*)',
         )[0]
 
         if not image_path:
@@ -37,11 +50,17 @@ class ImageArea(QLabel):
 
             return image_path
         except UnidentifiedImageError:
-            QMessageBox.warning(self, 'Ошибка', 'Указанный формат изображения не поддерживается!')
+            QMessageBox.warning(
+                self, 'Ошибка',
+                'Указанный формат изображения не поддерживается!'
+            )
 
             return None
 
     def close_image_file(self) -> None:
+        """
+        Закрытие файла изображения
+        """
         self.current_history_step = -1
         self.zoom_value = 1.0
         self.original_image = None
@@ -50,6 +69,9 @@ class ImageArea(QLabel):
         self.clear()
 
     def save_image(self, save_as: bool = False) -> None:
+        """
+        Сохранение файла изображения
+        """
         if save_as:
             image_path = QFileDialog.getSaveFileName(
                 self, 'Сохранение', '', ';;'.join(image_formats)
@@ -64,15 +86,26 @@ class ImageArea(QLabel):
         self._set_is_saved(True)
 
     def resize_image(self, ratio: float) -> float:
+        """
+        Изменение размера изображения
+        """
         self.zoom_value = round(self.zoom_value * ratio, 2)
 
         size = self.displayed_image.size()
-        width, height = int(size.width() * self.zoom_value), int(size.height() * self.zoom_value)
+        width = int(size.width() * self.zoom_value)
+        height = int(size.height() * self.zoom_value)
         self.resize(QSize(width, height))
 
         return self.zoom_value
 
-    def apply_filter(self, image_filter: Callable[..., Image.open], *args: Any) -> None:
+    def apply_filter(
+        self,
+        image_filter: Callable[..., Image.open],
+        *args: Any
+    ) -> None:
+        """
+        Применения фильтра к изображению
+        """
         new_image = image_filter(self.current_image, *args)
         self._update_history(new_image)
         self._update_image(new_image)
@@ -88,8 +121,10 @@ class ImageArea(QLabel):
         self._set_history_actions_enabled()
 
     def is_need_save(self) -> bool:
-        return self.original_image is not None and \
-            (not self.is_saved[0] or self.current_history_step != self.is_saved[1])
+        return self.original_image is not None and (
+            not self.is_saved[0] or
+            self.current_history_step != self.is_saved[1]
+        )
 
     def _set_is_saved(self, is_saved: bool) -> None:
         self.is_saved = (is_saved, self.current_history_step)
@@ -114,12 +149,13 @@ class ImageArea(QLabel):
         self.setPixmap(QPixmap().fromImage(self.displayed_image))
 
         size = self.displayed_image.size()
-        width, height = int(size.width() * self.zoom_value), int(size.height() * self.zoom_value)
+        width = int(size.width() * self.zoom_value)
+        height = int(size.height() * self.zoom_value)
         self.resize(QSize(width, height))
 
     def _update_history(self, image: Image) -> None:
         if len(self.history) - 1 != self.current_history_step:
-            del self.history[self.current_history_step + 1:]
+            del self.history[self.current_history_step + 1 :]
 
         if len(self.history) == SETTINGS['history_limit']:
             del self.history[0]
@@ -129,5 +165,9 @@ class ImageArea(QLabel):
         self.history.append(image)
 
     def _set_history_actions_enabled(self) -> None:
-        self.main_window.step_forward_action.setEnabled(len(self.history) > self.current_history_step + 1)
-        self.main_window.step_back_action.setEnabled(self.current_history_step > 0)
+        self.main_window.step_forward_action.setEnabled(
+            len(self.history) > self.current_history_step + 1
+        )
+        self.main_window.step_back_action.setEnabled(
+            self.current_history_step > 0
+        )

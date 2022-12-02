@@ -1,8 +1,22 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSpinBox, QPushButton
+"""
+Описывает класс интерфейса окна настроек
+"""
+from PyQt5.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QSpinBox,
+    QPushButton,
+)
 from PyQt5.QtGui import QIcon
 
 
 class Settings_UI(object):
+    """
+    Интерфейс окна настроек
+    """
+
     def init_ui(self, window: QWidget) -> None:
         window.setWindowTitle('Настройки')
         window.setWindowIcon(QIcon('App/Icons/PhotoLite.svg'))
@@ -13,7 +27,7 @@ class Settings_UI(object):
 
         self.histoty_label = QLabel(window)
         self.histoty_label.setText('Лимит истории')
-        
+
         self.history_limit_value = QSpinBox(window)
 
         self.history_layout.addWidget(self.histoty_label)
