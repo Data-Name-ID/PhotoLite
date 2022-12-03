@@ -252,8 +252,8 @@ class SettingsWindow(QWidget, Settings_UI):
         for setting in SETTINGS:
             self.main_window.db_cur.execute(
                 f"UPDATE settings SET value = '"
-                + getattr(self, f'{setting}_value').value()
-                + "' WHERE name = '{setting}'"
+                + str(getattr(self, f'{setting}_value').value())
+                + f"' WHERE name = '{setting}'"
             )
 
         self.close()
