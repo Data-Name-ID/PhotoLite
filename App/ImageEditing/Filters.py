@@ -1,33 +1,50 @@
 from PIL import Image, ImageFilter
 
 
-# Самые простые фильтры
 def sharpen_filter(image: Image.open) -> Image:
+    """
+    Фильтр, повышающий резкость
+    """
     new_image = image.filter(ImageFilter.SHARPEN)
     return new_image
 
 
 def smooth_filter(image: Image.open) -> Image:
+    """
+    Фильтр, понижающий резкость
+    """
     new_image = image.filter(ImageFilter.SMOOTH)
     return new_image
 
 
 def blur_filter(image: Image.open) -> Image:
+    """
+    Фильтр размытия
+    """
     new_image = image.filter(ImageFilter.BLUR)
     return new_image
 
 
 def find_edges_filter(image: Image.open) -> Image:
+    """
+    Фильтр, оставляющий только границы на изобращении
+    """
     new_image = image.filter(ImageFilter.FIND_EDGES)
     return new_image
 
 
 def emboss_filter(image: Image.open) -> Image:
+    """
+    Эффект плоского 3D
+    """
     new_image = image.filter(ImageFilter.EMBOSS)
     return new_image
 
 
 def black_white_filter(image: Image.open) -> Image:
+    """
+    Чёрно-белый фильтр
+    """
     new_image = image.copy()
     pixels = new_image.load()
     x, y = new_image.size
@@ -49,6 +66,9 @@ def black_white_filter(image: Image.open) -> Image:
 
 
 def only_black_white_filter(image: Image.open) -> Image:
+    """
+    Фильтр абсолютного чб
+    """
     new_image = image.copy()
     pixels = new_image.load()
     x, y = new_image.size
@@ -76,6 +96,9 @@ def only_black_white_filter(image: Image.open) -> Image:
 
 
 def inversion_filter(image: Image.open) -> Image:
+    """
+    Фильтр инферсии цветов
+    """
     new_image = image.copy()
     pixels = new_image.load()
     x, y = new_image.size
@@ -95,6 +118,9 @@ def inversion_filter(image: Image.open) -> Image:
 
 
 def makeanagliph_filter(image: Image.open) -> Image:
+    """
+    Эффект стереопары [3D]
+    """
     new_image = image.copy()
     im_pixels = new_image.load()
     x, y = new_image.size

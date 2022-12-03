@@ -113,6 +113,9 @@ class ImageArea(QLabel):
         self._set_history_actions_enabled()
 
     def to_history_step(self, step: int) -> None:
+        """
+        Переход к нужному изображению из истории редактирования
+        """
         self.current_history_step += step
 
         history_image = self.history[self.current_history_step]
@@ -121,15 +124,24 @@ class ImageArea(QLabel):
         self._set_history_actions_enabled()
 
     def is_need_save(self) -> bool:
+        """
+        Возвращеят, нужно лы сохранить изображение
+        """
         return self.original_image is not None and (
             not self.is_saved[0] or
             self.current_history_step != self.is_saved[1]
         )
 
     def _set_is_saved(self, is_saved: bool) -> None:
+        """
+        Установить is_saved в нужное значение
+        """
         self.is_saved = (is_saved, self.current_history_step)
 
     def _set_image(self, path: str) -> None:
+        """
+        Установить изображение
+        """
         self.original_image = Image.open(path)
         self.current_image = self.original_image.copy()
 
@@ -142,6 +154,9 @@ class ImageArea(QLabel):
         self._set_is_saved(True)
 
     def _update_image(self, image: Image) -> None:
+        """
+        Обновить изображение
+        """
         self.current_image = image
         self._set_is_saved(False)
 
@@ -154,6 +169,9 @@ class ImageArea(QLabel):
         self.resize(QSize(width, height))
 
     def _update_history(self, image: Image) -> None:
+        """
+        Обновить историю редактирования
+        """
         if len(self.history) - 1 != self.current_history_step:
             del self.history[self.current_history_step + 1 :]
 
@@ -165,6 +183,9 @@ class ImageArea(QLabel):
         self.history.append(image)
 
     def _set_history_actions_enabled(self) -> None:
+        """
+        Заблокировать или разблокировать Action'ы истории
+        """
         self.main_window.step_forward_action.setEnabled(
             len(self.history) > self.current_history_step + 1
         )
